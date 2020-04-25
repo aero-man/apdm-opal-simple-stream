@@ -1,0 +1,10 @@
+# Mac OS
+.DS_Store
+
+# Python
+*.pyc
+
+# Logs and data
+*.sqlite
+*.csv
+*.log
