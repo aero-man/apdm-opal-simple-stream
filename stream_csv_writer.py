@@ -19,9 +19,9 @@ class StreamCsvWriter:
         self._write_header()
 
     def _write_header(self):
-        column_names = [['unix_time_ms', 'device_id', 'accel_x', 'accel_y',
-                        'accel_z', 'gyro_x', 'gyro_y', 'gyro_z', 'mag_x',
-                        'mag_y', 'mag_z']]
+        column_names = [['computer_unix_time_ms','sensor_unix_time_ms', 'device_id', 
+                        'accel_x', 'accel_y', 'accel_z', 'gyro_x', 'gyro_y', 'gyro_z',
+                        'mag_x', 'mag_y', 'mag_z']]
         self.write(column_names)
 
     def write(self, sensor_data):

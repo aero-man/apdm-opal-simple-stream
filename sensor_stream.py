@@ -57,6 +57,7 @@ class SensorStream:
         Get next record for each foot from the sensors (2 records total)
         Returns:
             A 2D list, one row for each active sensor. Each row has the following data:
+                - Computer time in milliseconds
                 - Unix time in milliseconds
                 - Device/sensor serial number
                 - Accelerometer X, Y, and Z
@@ -69,7 +70,7 @@ class SensorStream:
         logger.logger.debug("Raw record received: {0}".format(raw_record))
         clean_record = self._raw_record_to_gyro_accel_and_mag(raw_record)
         logger.logger.debug("Clean record: {0}".format(clean_record))
-        self._calc_sensor_latency(clean_record[0][0]) # [0][0] = sensor timestamp
+        self._calc_sensor_latency(clean_record[0][0], clean_record[0][1]) # [0][0] = sensor timestamp
         return clean_record
 
     def stop(self):
@@ -106,7 +107,8 @@ class SensorStream:
         for device_id in self.device_ids:
             return_code = apdm.apdm_ctx_extract_data_by_device_id(self.context, device_id, raw_record)
             single_device_data = [
-                        str(raw_record.v2_sync_val64_us), # Unix time in milliseconds
+                        str(time()), # Computer's Unix time in milliseconds
+                        str(raw_record.v2_sync_val64_us), # APDM sensors' Unix time in milliseconds
                         str(raw_record.device_info_serial_number),
                         str(raw_record.accl_x_axis_si),
                         str(raw_record.accl_y_axis_si),
@@ -120,11 +122,11 @@ class SensorStream:
             sensor_data.append(single_device_data)
         return sensor_data
 
-    def _calc_sensor_latency(self, sensor_timestamp):
+    def _calc_sensor_latency(self, computer_timestamp, sensor_timestamp):
         '''
         Calculate latency for APDM Opal sensors in seconds
         '''
-        sensor_latency = time() - float(sensor_timestamp)/1000000
+        sensor_latency = float(computer_timestamp) - float(sensor_timestamp)/1000000
         logger.logger.debug("Current sensor latency (s): {0}, Sensor Timestamp: {1}"
             .format(sensor_latency, sensor_timestamp))
         return sensor_latency
