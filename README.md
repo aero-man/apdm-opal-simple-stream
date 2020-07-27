@@ -1,8 +1,8 @@
-# APDM Opal Wearable Sensor Tool
+# APDM Opal Sensor Database
 ### Using APDM Python SDK
 
 ### About
-This tool streams data from APDM Opal wearable, wireless sensors. APDM Opal sensors are radio-frequency sensors with an on-board inertial measurement unit (IMU). This tool collects and stores the gyroscope, accelerometer, and magnetometer data from these sensors.
+This tool streams data from APDM Opal wearable, wireless sensors to a SQLite database or CSV. APDM Opal sensors are radio-frequency sensors with an on-board inertial measurement unit (IMU). This tool collects and stores the gyroscope, accelerometer, and magnetometer data from these sensors.
 
 ### Getting Started
 Please refer to the Getting Started Guide in this repository to set up your computer and the APDM sensors to start streaming. For now, only setup documentation for MacOS is available.
@@ -15,6 +15,6 @@ Please refer to the Getting Started Guide in this repository to set up your comp
 * The `docopt` Python module (`pip install docopt`)
 
 ### Contacts
-Andrew Roman <aeroman2@asu.edu>  
-Niveditha Muthukrishnan <nmuthuk1@asu.edu>
+* Andrew Roman <aeroman2@asu.edu>  (main contact)
+* Niveditha Muthukrishnan <nmuthuk1@asu.edu>  (contributor)
 

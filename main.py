@@ -1,9 +1,15 @@
 '''
-APDM Opal Sensor Tool.
+APDM Opal Sensor Database.
 
-This tool simplifies configuration and streaming for APDM Opal wearable sensors.
-APDM Opal wearable sensors are wireless, wearable sensors that track body movement
-using an inertial measurement unit (IMU).
+This tool streams data from APDM Opal wearable, wireless sensors 
+to a SQLite database or CSV. APDM Opal sensors are radio-frequency 
+sensors with an on-board inertial measurement unit (IMU). This 
+tool collects and stores the gyroscope, accelerometer, and 
+magnetometer data from these sensors.
+
+NOTE:
+  The `configure` command must be run before you can `stream`.
+  See official documentation from APDM's SDK for more setup info.
 
 Usage:
   main.py configure
