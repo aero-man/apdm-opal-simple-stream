@@ -9,37 +9,71 @@ from app_logger import AppLogger
 
 logger = AppLogger(__name__)
 
-class Database:
+class ApdmDatabase:
     def __init__(self):
-        logger.logger.info("Creating database...")
+        '''
+        Connect to sensor database. Sqlite3 automatically creates a 
+        DB on connection if one doesn't exist, so checking existence of
+        tables themselves is necessary for proper functioning.
+        '''
+        logger.logger.info("Connecting to database `{0}`...".format(settings.DATABASE_NAME))
         self.connection = sqlite3.connect(settings.DATABASE_NAME)
         self.cursor = self.connection.cursor()
-        self.cursor.execute('''CREATE TABLE apdm_records
-                               (computer_unix_time_ms int, sensor_unix_time_ms int, 
-                               device_id int, accel_x real, accel_y real, accel_z real,
-                               gyro_x real, gyro_y real, gyro_z real,
-                               mag_x real, mag_y real, mag_z real)
-                               ''')
-        logger.logger.info("Database created")
+        logger.logger.info("Connected to database.")
+        if not self._trial_tables_exist():
+            logger.logger.info("Necessary tables do not exist. Creating tables...")
+            self._create_trial_tables()
+            logger.logger.info("Created tables for sensor data.")
+            tables = self._get_table_names()
+            logger.logger.info("Currently existing tables: {0}".format(tables))
 
-    def add_row(self, data):
-        '''
-        Add a record of gait data to the DB
-
-        Data gets padded with `0` values to match the number of columns in the DB
-        '''
-        logger.logger.debug("Adding row to database: {0}".format(data))
-        padded_data = self._pad_data_with_zeros(data)
-        self.cursor.execute('''INSERT INTO apdm_records
-                               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
-                               ''', padded_data)
+    def add_new_trial(self, data):
+        # Add new trial to the database
+        logger.logger.debug("Adding new trial to database: {0}".format(data))
+        self.cursor.execute("INSERT INTO trials VALUES (?,?,?)", data)
         self.connection.commit()
 
-    def _pad_data_with_zeros(self, data):
-        '''
-        Helper function to pad row of gait data with `0` values to match # of DB columns.
+    def add_sensor_event_data(self, data):
+        # Add a record of sensor data from a single sensor to the DB
+        logger.logger.debug("Adding row to database: {0}".format(data))
+        self.cursor.execute("INSERT INTO trial_data VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", data)
+        self.connection.commit()
 
-        Function can accept any number of valid columns less than 11 and still return 11 columns total.
+    def _trial_tables_exist(self):
         '''
-        return data + ([0] * (12-len(data)))
+        Check if the required tables for data collection exist.
+        If `SELECT` from a table fails, then the table does not exist.
+        '''
+        try:
+            self.cursor.execute("SELECT * FROM trials")
+            self.cursor.execute("SELECT * FROM trial_data")
+        except sqlite3.OperationalError as e:
+            logger.logger.error(e)
+            return False
+
+    def _create_trial_tables(self):
+        # Create tables for storing APDM sensor data
+        try:
+            self.cursor.execute('''CREATE TABLE trials 
+                                   (trial_id int primary key, start_time int, 
+                                   device_ids text)
+                                   ''')
+        except sqlite3.OperationalError as e:
+            logger.logger.error(e)
+        try:
+            self.cursor.execute('''CREATE TABLE trial_data
+                                   (trial_id int primary key, computer_timestamp int,
+                                   sensor_timestamp int, sensor_id int, accel_x real, 
+                                   accel_y real, accel_z real, gyro_x real, gyro_y real,
+                                   gyro_z real, magnet_x real, magnet_y real, magnet_z real)
+                                   ''')
+        except sqlite3.OperationalError as e:
+            logger.logger.error(e)
+
+    def _get_table_names(self):
+        # Get names of all tables in database
+        result = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = result.fetchall()
+        return tables
+
 

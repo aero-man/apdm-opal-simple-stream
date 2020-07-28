@@ -12,7 +12,7 @@ The APDM Opal sensor data comes in as a 2D array of string values. The overall a
 ### `trials` table
 * `trial_id` ID of the recording trial, AKA any new recording session of the sensors (integer)
 * `start_time` Timestamp from when recording started (unix time millseconds)
-* `device_ids` Device IDs from all APDM Opal sensors involved in this trial
+* `device_ids` Device IDs from all APDM Opal sensors involved in this trial (Array of comma-delimited integers as a single string)
 
 ### `trial_data` table
 * `trial_id` ID of the recording trial, matches `trial_id` in `trials` table

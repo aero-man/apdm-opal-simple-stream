@@ -22,7 +22,7 @@ Options:
 '''
 import csv
 from app_logger import AppLogger
-from database import Database
+from database import ApdmDatabase
 from docopt import docopt
 from sensor_config import SensorConfig
 from sensor_stream import SensorStream
