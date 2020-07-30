@@ -4,6 +4,8 @@ This class handles all database interactions.
 
 import settings
 import sqlite3
+from time import time
+
 from app_logger import AppLogger
 
 
@@ -27,16 +29,21 @@ class ApdmDatabase:
             tables = self._get_table_names()
             logger.logger.info("Currently existing tables: {0}".format(tables))
 
-    def add_new_trial(self, data):
-        # Add new trial to the database
-        logger.logger.debug("Adding new trial to database: {0}".format(data))
-        self.cursor.execute("INSERT INTO trials VALUES (?,?,?)", data)
+    def create_new_trial(self, device_ids=[]):
+        # Create a new trial (AKA a recording of sensor data) in the database
+        trial_id = self._create_new_trial_id()
+        start_time = int(time())
+        device_ids = None # Device IDs will be added once sensor streaming starts
+        logger.logger.debug("Creating new trial in database with data: {0}".format([trial_id, start_time, device_ids]))
+        self.cursor.execute("INSERT INTO trials VALUES (?,?,?)", ([trial_id, start_time, device_ids]))
         self.connection.commit()
+        return trial_id
 
-    def add_sensor_event_data(self, data):
+    def add_sensor_event_data(self, trial_id, data):
         # Add a record of sensor data from a single sensor to the DB
-        logger.logger.debug("Adding row to database: {0}".format(data))
-        self.cursor.execute("INSERT INTO trial_data VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", data)
+        logger.logger.debug("Adding row to database: {0}, {1}".format(trial_id, data))
+        row = [trial_id] + data
+        self.cursor.execute("INSERT INTO trial_data VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", row)
         self.connection.commit()
 
     def _trial_tables_exist(self):
@@ -52,17 +59,21 @@ class ApdmDatabase:
             return False
 
     def _create_trial_tables(self):
-        # Create tables for storing APDM sensor data
+        '''
+        Create two tables: one for trials/recordings and one for the sensor
+        data from those trials/recordings.
+        '''
         try:
             self.cursor.execute('''CREATE TABLE trials 
-                                   (trial_id int primary key, start_time int, 
+                                   (trial_id int primary key,
+                                   start_time int, 
                                    device_ids text)
                                    ''')
         except sqlite3.OperationalError as e:
             logger.logger.error(e)
         try:
             self.cursor.execute('''CREATE TABLE trial_data
-                                   (trial_id int primary key, computer_timestamp int,
+                                   (trial_id int, computer_timestamp int,
                                    sensor_timestamp int, sensor_id int, accel_x real, 
                                    accel_y real, accel_z real, gyro_x real, gyro_y real,
                                    gyro_z real, magnet_x real, magnet_y real, magnet_z real)
@@ -76,4 +87,17 @@ class ApdmDatabase:
         tables = result.fetchall()
         return tables
 
+    def _create_new_trial_id(self):
+        previous_id_query = self.cursor.execute("SELECT MAX(trial_id) FROM trials;")
+        previous_trial_id = previous_id_query.fetchone()[0] # extract ID number from list and tuple
+        if type(previous_trial_id) is not int:
+            new_trial_id = 1
+        else:
+            new_trial_id = int(previous_trial_id) + 1
+        return new_trial_id
+        
+
+    def _format_device_ids(self, device_ids):
+        # Convert integer array of device IDs into comma-delimited string
+        return ','.join(map(str, device_ids)) 
 

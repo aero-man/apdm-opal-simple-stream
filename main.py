@@ -47,9 +47,10 @@ def get_sensor_data_and_write_to_csv():
 
 def get_sensor_data_and_write_to_sql():
     logger.logger.info("Getting sensor data and writing to SQL database...")
+    db = ApdmDatabase()
+    trial_id = db.create_new_trial()
     stream = SensorStream()
     stream.start()
-    db = Database()
     while True:
         try:
             all_sensors = stream.get_next()
@@ -61,7 +62,7 @@ def get_sensor_data_and_write_to_sql():
             logger.logger.info("Writing sensor data to SQL database...")
             for sensor in all_sensors:
                 logger.logger.debug("Writing row of sensor data: {0}".format(sensor))
-                db.add_row(sensor)
+                db.add_sensor_event_data(trial_id, sensor)
         except Exception as e:
             logger.logger.error("Could not write sensor data to database. Error: {0}".
                 format(e))
