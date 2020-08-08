@@ -14,6 +14,9 @@ Please refer to the Getting Started Guide in this repository to set up your comp
 * Python 2.7
 * The `docopt` Python module (`pip install docopt`)
 
+### Why Python 2.7 instead of 3?
+APDM's Python SDK unfortunately does not work with Python 3.
+
 ### Contacts
 * Andrew Roman <aeroman2@asu.edu>  (main contact)
 * Niveditha Muthukrishnan <nmuthuk1@asu.edu>  (contributor)
