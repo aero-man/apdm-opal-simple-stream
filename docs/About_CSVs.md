@@ -1,6 +1,6 @@
 # About the CSV writing option
 
-The CSV-writing option for this tool is structured differently than the SQLite database. Each trial gets its own CSV (named `trial_<timestamp>.csv`), unlike the database, where all data for all trials lives in a single table.
+Each trial gets its own CSV (named `trial_<timestamp>.csv`), unlike the database, where all data for all trials lives in a single table.
 
 ### APDM Opal sensor data usage in Python
 The APDM Opal sensor data comes in as a 2D array of string values. The overall array contains one array for each APDM Opal sensor. All timestamps and numbers are initially strings and must be converted to integers or doubles.
@@ -8,7 +8,7 @@ The APDM Opal sensor data comes in as a 2D array of string values. The overall a
 ### Each CSV row contains
 * `computer_unix_time_ms` The time that the computer received the APDM sensor data (milliseconds).
 * `sensor_unix_time_us` The time that the APDM sensor produced the sensor data (microseconds).
-* `sensor_id` The ID of the APDM sensor. A 3-4 digit integer.
+* `sensor_id` The ID of the APDM sensor. A 3-6 digit integer.
 * `accel_x` Accelerometer X from sensor (radians).
 * `accel_y` Accelerometer Y from sensor (radians).
 * `accel_z` Accelerometer Z from sensor (radians).
@@ -20,4 +20,4 @@ The APDM Opal sensor data comes in as a 2D array of string values. The overall a
 * `magnet_z` Magnetometer Z from sensor (microteslas).
 
 ### Example CSV row
-`1595550239, 1.59555E+15, 579, 1.226603365, 0.506366587, -9.689746785,   -0.002136296, 0.008801691, -0.008545183, -23.03440777, -5.664235115, -20.25405071`
+`1596058691.56, 1596058691017290, 579, 1.226603365, 0.506366587, -9.689746785,   -0.002136296, 0.008801691, -0.008545183, -23.03440777, -5.664235115, -20.25405071`
